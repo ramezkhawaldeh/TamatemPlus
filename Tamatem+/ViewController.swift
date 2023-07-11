@@ -23,7 +23,7 @@ final class InitialViewController: UIViewController {
         button.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16).isActive = true
 
         button.addTarget(self, action: #selector(didPressOpenBrowserButton), for: .touchUpInside)
-       
+
         return button
     }()
     
@@ -43,6 +43,4 @@ final class InitialViewController: UIViewController {
         let navigationController = UINavigationController(rootViewController: webViewController)
         self.present(navigationController, animated: true)
     }
-
 }
-
