@@ -9,6 +9,8 @@ import UIKit
 
 final class InitialViewController: UIViewController {
 
+    let tamatemPlusPath: String = "https://tamatemplus.com"
+    
     lazy var openBrowserButton: UIButton = {
         let button = UIButton()
 
@@ -37,7 +39,9 @@ final class InitialViewController: UIViewController {
     }
 
     @objc func didPressOpenBrowserButton() {
-  
+        let webViewController = WebViewController(urlPath: tamatemPlusPath)
+        let navigationController = UINavigationController(rootViewController: webViewController)
+        self.present(navigationController, animated: true)
     }
 
 }
