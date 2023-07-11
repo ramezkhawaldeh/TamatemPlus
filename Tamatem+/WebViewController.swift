@@ -35,23 +35,22 @@ class WebViewController: UIViewController {
     lazy var webView: WKWebView = {
         let webView = WKWebView()
         webView.navigationDelegate = self
+        webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil) //KVO for webpage loading progress
         return webView
     }()
     
-//MARK: - Initializer
+    //MARK: - Initializer
     init(urlPath: String) {
         self.urlPath = urlPath
-
         super.init(nibName: nil, bundle: nil)
-
         configureNavigationItems()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-//MARK: - NavBar Items
+    
+    //MARK: - NavBar Items
     private func configureNavigationItems() {
         let dismissItem = UIBarButtonItem(title: "Close",
                                           style: .plain,
@@ -76,23 +75,8 @@ class WebViewController: UIViewController {
         navigationItem.rightBarButtonItems = [dismissItem, refreshButton]
         navigationItem.leftBarButtonItems = [backButton, forwardButton]
     }
-
-//MARK: - ViewDidLoad
-    override func viewDidLoad() {
-        configureViews()
-    }
-
-//MARK: - Views configuration
-    private func configureViews() {
-        stackView.addArrangedSubview(progressBar)
-        stackView.addArrangedSubview(webView)
-        
-        progressBar.sizeToFit()
-        view.backgroundColor = .white
-        
-    }
-
-// MARK: - NavBarItems actions
+    
+    // MARK: - NavBarItems actions
     @objc private func dismissView() {
         self.dismiss(animated: true)
     }
@@ -107,6 +91,37 @@ class WebViewController: UIViewController {
     
     @objc private func refreshPage() {
         webView.reload()
+    }
+
+    //MARK: - ViewDidLoad
+    override func viewDidLoad() {
+        configureViews()
+        loadHomePage()
+    }
+    
+    //MARK: - Setting up UIProgressView progress
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == #keyPath(WKWebView.estimatedProgress) {
+            progressBar.isHidden = webView.estimatedProgress == 1.0
+            progressBar.setProgress(Float(webView.estimatedProgress), animated: true)
+        }
+    }
+    
+    //MARK: - Views configuration
+    private func configureViews() {
+        stackView.addArrangedSubview(progressBar)
+        stackView.addArrangedSubview(webView)
+        
+        progressBar.sizeToFit()
+        view.backgroundColor = .white
+        
+    }
+    
+    //MARK: - Routing
+    private func loadHomePage() {
+        guard let url = URL(string: self.urlPath) else { return }
+        webView.load(URLRequest(url: url))
+        webView.allowsBackForwardNavigationGestures = true
     }
 }
 
